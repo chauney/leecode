@@ -167,7 +167,50 @@ public:
         // 如果绝对值大于1的话，返回-1，表示不是平衡二叉树，反之返回高度
         return abs(leftDepth - rightDepth) > 1 ? -1 : 1 + max(leftDepth, rightDepth);
     }
+
+    // 面试题 04.05. 合法二叉搜索树 (还有一种方法直接中序遍历到数组中，判断是否递增)
+    bool isValidBST(TreeNode* root) {
+        if (root == nullptr) {
+            return true;
+        }
+        bool left = isValidBST(root->left);
+        if (maxVal < root->val) {
+            maxVal = root->val;
+        }
+        else {
+            return false;
+        }
+        bool right = isValidBST(root->right);
+        return left && right;
+    }
+
+    // 面试题 04.06. 后继者 
+    // https://leetcode.cn/problems/successor-lcci/solutions/1490642/hou-ji-zhe-by-leetcode-solution-6hgc/?envType=study-plan-v2&envId=cracking-the-coding-interview
+    TreeNode* inorderSuccessor(TreeNode* root, TreeNode* p) {
+        TreeNode* tmp = nullptr;
+        // 如果有右子树，找到右子树最小的节点
+        if (p->right != nullptr) {
+            tmp = p->right;
+            while (tmp->left != nullptr) {
+                tmp = tmp->left;
+            }
+            return tmp;
+        }
+        // 如果没有右子树，要找他的左子树的最小节点
+        TreeNode* node = root;
+        while (node != nullptr) {
+            if (node->val > p->val) {
+                tmp = node;
+                node = node->left;
+            }
+            else {
+                node = node->right;
+            }
+        }
+        return tmp;
+    }
 private:
     std::vector<bool> visited;
     unordered_map<int, unordered_set<int>> map;
+    long long maxVal = LONG_MIN;
 };
