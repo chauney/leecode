@@ -213,4 +213,137 @@ private:
     std::vector<bool> visited;
     unordered_map<int, unordered_set<int>> map;
     long long maxVal = LONG_MIN;
+
+    // 面试题 04.08. 首个共同祖先
+public:
+    TreeNode* ans;
+
+    // 使用深度优先搜索（DFS）寻找两个节点p和q的最近公共祖先（LCA）
+    // 如果p和q在同一子树中，那么它们的LCA就是该子树的根节点
+    // 如果p和q分别在两个子树中，那么它们的LCA就是它们的根节点的父节点
+    // 本例中，我们使用递归的方式实现DFS算法
+
+    // DFS辅助函数：在以root为根的子树中寻找p和q的LCA
+    bool dfs(TreeNode* root, TreeNode* p, TreeNode* q) {
+        // 如果当前节点为空，则返回false
+        if (root == nullptr) return false;
+
+        // 在左子树中递归寻找p和q的LCA
+        bool lson = dfs(root->left, p, q);
+
+        // 在右子树中递归寻找p和q的LCA
+        bool rson = dfs(root->right, p, q);
+
+        // 如果左子树和右子树都有p和q的LCA，那么当前节点就是p和q的LCA
+        if ((lson && rson) || ((root->val == p->val) || (root->val == q->val) && (lson || rson))) {
+            ans = root;
+        }
+
+        // 如果左子树或右子树有p或q，或者当前节点的值等于p或q的值，
+        // 那么返回true，表示已经找到了p或q的LCA
+        return lson || rson || (root->val == p->val || root->val == q->val);
+    }
+
+    // 寻找以root为根的二叉树中两个节点p和q的最近公共祖先（LCA）
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        // 调用DFS辅助函数，寻找p和q的LCA，并返回结果
+        dfs(root, p, q);
+        return ans;
+    }
+
+    // 面试题 04.09. 二叉搜索树序列
+public:
+    // 获取二叉搜索树的所有可能序列
+    vector<vector<int>> BSTSequences(TreeNode* root) {
+        // 如果根节点为空，则返回一个空列表
+        if (root == nullptr) return {{}};
+        
+        // 使用双端队列存储当前节点的父节点
+        deque<TreeNode*> dq;
+        // 将根节点加入双端队列
+        dq.push_back(root);
+        // 调用DFS辅助函数
+        dfs(dq);
+        // 返回结果
+        return res;
+    }
+
+private:
+    // DFS辅助函数：获取以当前节点为根的二叉搜索树的所有序列
+    void dfs(deque<TreeNode*>& dq) {
+        // 如果双端队列为空，则将当前路径加入结果列表
+        if (dq.empty()) {
+            res.push_back(path);
+            return;
+        }
+
+        // 获取双端队列的大小
+        int size = dq.size();
+        for (int i = 0; i < size; i++) {
+            // 获取当前节点
+            TreeNode* node = dq.front();
+            // 将当前节点从双端队列中移除
+            dq.pop_front();
+            // 将当前节点的值加入当前路径
+            path.push_back(node->val);
+            // 如果当前节点有左子节点，则加入双端队列
+            if (node->left) dq.push_back(node->left);
+            // 如果当前节点有右子节点，则加入双端队列
+            if (node->right) dq.push_back(node->right);
+            // 递归调用DFS辅助函数
+            dfs(dq);
+            // 将当前节点从双端队列中移除
+            if (node->left) dq.pop_back();
+            // 将当前节点从双端队列中移除
+            if (node->right) dq.pop_back();
+            // 将当前节点加入双端队列
+            dq.push_back(node);
+            // 将当前节点从当前路径中移除
+            path.pop_back();
+        }
+    }
+    
+    // 存储当前路径
+    vector<int> path;
+    // 存储结果
+    vector<vector<int>> res;
+
+    // 面试题 04.10. 检查子树
+public:
+
+    // 比较两棵树是否相同的函数
+    bool compare(TreeNode* t1, TreeNode* t2) {
+        // 如果t2是空节点，但t1不是，则两棵树不同
+        if (t2 == nullptr && t1 != nullptr) return false;
+
+        // 如果t1是空节点，但t2不是，则两棵树不同
+        if (t1 == nullptr && t2 != nullptr) return false;
+
+        // 如果t1和t2都是空节点，则两棵树相同
+        if (t1 == nullptr && t2 == nullptr) return true;
+
+        // 如果t1和t2的值相同，则比较它们的左右子树
+        if (t1->val == t2->val) {
+            return compare(t1->left, t2->left) && compare(t1->right, t2->right);
+        }
+
+        // 如果t1和t2的值不同，则两棵树不同
+        return false;
+    }
+
+    // 检查t2是否是t1的子树的函数
+    bool checkSubTree(TreeNode* t1, TreeNode* t2) {
+        // 如果t1是空节点，则返回false
+        if (t1 == nullptr) {
+            return false;
+        }
+
+        // 如果t2是空节点，则返回true
+        if (t2 == nullptr) {
+            return true;
+        }
+
+        // 如果t1和t2是相同的树，或者t2是t1的左子树，或者t2是t1的右子树，则返回true
+        return compare(t1, t2) || checkSubTree(t1->left, t2) || checkSubTree(t1->right, t2);
+    }
 };
