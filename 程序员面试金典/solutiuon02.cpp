@@ -346,4 +346,60 @@ public:
         // 如果t1和t2是相同的树，或者t2是t1的左子树，或者t2是t1的右子树，则返回true
         return compare(t1, t2) || checkSubTree(t1->left, t2) || checkSubTree(t1->right, t2);
     }
+
+
+    // 面试题 04.12. 求和路径
+    // 穷举法
+    // int rootSum(TreeNode* root, int sum) {
+    //     if (!root) {
+    //         return 0;
+    //     }
+
+    //     int ret = 0;
+    //     if (root->val == sum) {
+    //         ret++;
+    //     } 
+
+    //     ret += rootSum(root->left, sum - root->val);
+    //     ret += rootSum(root->right, sum - root->val);
+    //     return ret;
+    // }
+
+    // int pathSum(TreeNode* root, int sum) {
+    //     if (!root) {
+    //         return 0;
+    //     }
+        
+    //     int ret = rootSum(root, sum);
+    //     ret += pathSum(root->left, sum);
+    //     ret += pathSum(root->right, sum);
+    //     return ret;
+    // }
+
+    unordered_map<long long, int> prefix;
+
+    int dfs(TreeNode* root, long long curr, int sum) {
+        if (!root) {
+            return 0;
+        }
+
+        int ret = 0;
+        curr += root->val;
+
+        if (prefix.count(curr - sum)) {
+            ret = prefix[curr - sum];
+        }
+
+        prefix[curr]++;
+        ret += dfs(root->left, curr, sum);
+        ret += dfs(root->right, curr, sum);
+        prefix[curr]--;
+
+        return ret;
+    }
+
+    int pathSum(TreeNode* root, int sum) {
+        prefix[0] = 1;
+        return dfs(root, 0, sum);
+    }
 };
